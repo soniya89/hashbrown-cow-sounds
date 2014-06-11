@@ -21,6 +21,7 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Menu;
@@ -31,18 +32,18 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.MediaController;
-import android.widget.MediaController.MediaPlayerControl;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.example.cordit.MusicService.MusicBinder;
 
 public class MainActivity extends Activity implements OnClickListener,
-		MediaPlayerControl {
+ OnSeekBarChangeListener {
 
-	private static MusicController controller;
 
 	private static final String LOG_TAG = "AudioRecordTest";
 
@@ -64,8 +65,21 @@ public class MainActivity extends Activity implements OnClickListener,
 	private boolean musicBound = false;
 	private boolean paused = false;
 	private boolean playbackPaused = false;
-
-	//private ImageView right;
+	
+	private ImageButton btnPlay;
+    private ImageButton btnForward;
+    private ImageButton btnBackward;
+    private ImageButton btnNext;
+    private ImageButton btnPrevious;
+    private SeekBar songProgressBar;
+    private TextView songCurrentDurationLabel;
+    private TextView songTotalDurationLabel;
+   
+    private Handler mHandler = new Handler();
+    private Utilities utils;
+    
+    private int seekForwardTime = 5000; // 5000 milliseconds
+    private int seekBackwardTime = 5000; // 5000 milliseconds
 
 	@Override
 	public void onCreate(Bundle data) {
@@ -101,8 +115,21 @@ public class MainActivity extends Activity implements OnClickListener,
 		SongAdapter songAdt = new SongAdapter(this, songList);
 		songView.setAdapter(songAdt);
 
-		// right.setOnClickListener(this);
-		setController();
+		// All player buttons
+        btnPlay = (ImageButton) findViewById(R.id.btnPlay);
+        btnForward = (ImageButton) findViewById(R.id.btnForward);
+        btnBackward = (ImageButton) findViewById(R.id.btnBackward);
+        btnNext = (ImageButton) findViewById(R.id.btnNext);
+        btnPrevious = (ImageButton) findViewById(R.id.btnPrevious);
+        songProgressBar = (SeekBar) findViewById(R.id.songProgressBar);
+        songCurrentDurationLabel = (TextView) findViewById(R.id.songCurrentDurationLabel);
+        songTotalDurationLabel = (TextView) findViewById(R.id.songTotalDurationLabel);
+
+        utils = new Utilities();
+        
+        songProgressBar.setOnSeekBarChangeListener(this); 
+        // right.setOnClickListener(this);
+		//setController();
 
 	}
 
@@ -123,10 +150,10 @@ public class MainActivity extends Activity implements OnClickListener,
 		musicServ.playSong();
 
 		if (playbackPaused) {
-			setController();
+			//setController();
 			playbackPaused = false;
 		}
-		controller.show(0);
+		//controller.show(0);
 	}
 
 	private ServiceConnection musicConnection = new ServiceConnection() {
@@ -374,6 +401,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	}
 
 	// ---media player control methods START----
+	/*
 	@Override
 	public void start() {
 		musicServ.go();
@@ -445,9 +473,9 @@ public class MainActivity extends Activity implements OnClickListener,
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
+*/
 	// ---media player control methods END----
-
+/*
 	private void setController() {
 		controller = new MusicController(this);
 
@@ -472,25 +500,25 @@ public class MainActivity extends Activity implements OnClickListener,
 		controller.setEnabled(true);
 
 	}
-
+*/
 	// play next
 	private void playNext() {
 		musicServ.playNext();
 		if (playbackPaused) {
-			setController();
+			//setController();
 			playbackPaused = false;
 		}
-		controller.show(0);
+		//controller.show(0);
 	}
 
 	// play previous
 	private void playPrev() {
 		musicServ.playPrev();
 		if (playbackPaused) {
-			setController();
+		//	setController();
 			playbackPaused = false;
 		}
-		controller.show(0);
+		//controller.show(0);
 	}
 
 	@Override
@@ -498,19 +526,75 @@ public class MainActivity extends Activity implements OnClickListener,
 		super.onResume();
 
 		if (paused) {
-			setController();
+			//setController();
 			paused = false;
 		}
 	}
 
 	@Override
 	public void onStop() {
-		controller.hide();
+	//	controller.hide();
 		super.onStop();
 	}
 
-	public static MediaController getMController() {
-		return controller;
+	public void updateProgressBar() {
+       // mHandler.postDelayed(mUpdateTimeTask, 100);
+    }   
+ 
+    /**
+     * Background Runnable thread
+     * */
+	
+	/*
+    private Runnable mUpdateTimeTask = new Runnable() {
+           public void run() {
+               long totalDuration = mp.getDuration();
+               long currentDuration = mp.getCurrentPosition();
+ 
+               // Displaying Total Duration time
+               songTotalDurationLabel.setText(""+utils.milliSecondsToTimer(totalDuration));
+               // Displaying time completed playing
+               songCurrentDurationLabel.setText(""+utils.milliSecondsToTimer(currentDuration));
+ 
+               // Updating progress bar
+               int progress = (int)(utils.getProgressPercentage(currentDuration, totalDuration));
+               //Log.d("Progress", ""+progress);
+               songProgressBar.setProgress(progress);
+ 
+               // Running this thread after 100 milliseconds
+               mHandler.postDelayed(this, 100);
+           }
+        };
+     */   
+	//-----seekbar change methods START-----
+	@Override
+	public void onProgressChanged(SeekBar seekBar, int progress,
+			boolean fromUser) {
+		// TODO Auto-generated method stub
+		
 	}
+
+	@Override
+	public void onStartTrackingTouch(SeekBar seekBar) {
+		
+	//	mHandler.removeCallbacks(mUpdateTimeTask);
+		
+	}
+
+	@Override
+	public void onStopTrackingTouch(SeekBar seekBar) {
+		
+		// mHandler.removeCallbacks(mUpdateTimeTask);
+	      //  int totalDuration = mp.getDuration();
+	      //  int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
+	 
+	        // forward or backward to certain seconds
+	     //   mp.seekTo(currentPosition);
+	 
+	        // update timer progress again
+	        updateProgressBar();
+		
+	}
+//------seekbar change methods END---------
 
 }

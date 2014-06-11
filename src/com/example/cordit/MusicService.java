@@ -125,7 +125,7 @@ public class MusicService extends Service implements
 	@Override
 	public void onPrepared(MediaPlayer mp) {
 
-		MainActivity.getMController().show(0);
+		//MainActivity.getMController().show(0);
 
 		player.start();
 

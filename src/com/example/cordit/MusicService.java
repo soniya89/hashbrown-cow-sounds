@@ -9,10 +9,13 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import java.util.Random;
 
@@ -34,6 +37,7 @@ public class MusicService extends Service implements
 	private boolean shuffle = false;
 	private Random rand;
 
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -41,6 +45,7 @@ public class MusicService extends Service implements
 		songPos = 0;
 		initMusicPlayer();
 		rand = new Random();
+	
 	}
 
 	public void initMusicPlayer()
@@ -207,4 +212,5 @@ public class MusicService extends Service implements
 		else
 			shuffle = true;
 	}
+
 }

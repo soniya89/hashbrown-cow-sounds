@@ -40,45 +40,48 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.example.cordit.MusicService.MusicBinder;
 
-public class MainActivity extends Activity implements OnClickListener, OnSeekBarChangeListener {
-
+public class MainActivity extends Activity implements OnClickListener,
+		OnSeekBarChangeListener {
 
 	private static final String LOG_TAG = "AudioRecordTest";
 
-	//recording
+	// recording
 	private static String mFileName = null;
 	private Button mRecordButton = null;
 	private MediaRecorder mRecorder = null;
 
-	//saving song
+	// saving song
 	private EditText input;
 	private AlertDialog.Builder alertSaveSong;
 	private AlertDialog.Builder alertCancelSong;
 
+	// for music playback
 	private MusicService musicServ;
 	private Intent playIntent;
 
+	// song list
 	private ArrayList<Song> songList;
 	private ListView songView;
 
 	private boolean musicBound = false;
 	private boolean paused = false;
 	private boolean playbackPaused = false;
-	
+
+	// media player
 	private ImageButton btnPlay;
-    private ImageButton btnForward;
-    private ImageButton btnBackward;
-    private ImageButton btnNext;
-    private ImageButton btnPrevious;
-    private SeekBar songProgressBar;
+	private ImageButton btnForward;
+	private ImageButton btnBackward;
+	private ImageButton btnNext;
+	private ImageButton btnPrevious;
+	private SeekBar songProgressBar;
 	private TextView songCurrentDurationLabel;
 	private TextView songTotalDurationLabel;
-	
+
 	private Handler mHandler = new Handler();
-    private Utilities utils;
-   
-    private int seekForwardTime = 5000; // 5000 milliseconds
-    private int seekBackwardTime = 5000; // 5000 milliseconds
+	private Utilities utils;
+
+	private int seekForwardTime = 5000; // 5000 milliseconds
+	private int seekBackwardTime = 5000; // 5000 milliseconds
 
 	@Override
 	public void onCreate(Bundle data) {
@@ -90,55 +93,54 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 		mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
 		mFileName += "/Music/cordit/audiorecordtest.3gp";
 
+		// set up record button
 		mRecordButton = (Button) findViewById(R.id.record_button);
 		mRecordButton.setText("RECORD");
 		mRecordButton.setTextColor(Color.YELLOW);
 		mRecordButton.setOnClickListener(this);
 		getWindow().getDecorView().setBackgroundColor(Color.DKGRAY);
 
+		// set up song list
 		songView = (ListView) findViewById(R.id.song_list);
-
-		//right = (ImageView)findViewById(R.id.right);
-
 		songList = new ArrayList<Song>();
-
 		getSongList();
-
 		// sort songs alphabetically
 		Collections.sort(songList, new Comparator<Song>() {
 			public int compare(Song a, Song b) {
 				return a.getTitle().compareTo(b.getTitle());
 			}
 		});
-
 		SongAdapter songAdt = new SongAdapter(this, songList);
 		songView.setAdapter(songAdt);
 
-		// All player buttons
-        btnPlay = (ImageButton) findViewById(R.id.btnPlay);
-        btnPlay.setOnClickListener(this);
-        btnForward = (ImageButton) findViewById(R.id.btnForward);
-        btnForward.setOnClickListener(this);
-        btnBackward = (ImageButton) findViewById(R.id.btnBackward);
-        btnBackward.setOnClickListener(this);
-        btnNext = (ImageButton) findViewById(R.id.btnNext);
-        btnNext.setOnClickListener(this);
-        btnPrevious = (ImageButton) findViewById(R.id.btnPrevious);
-        btnPrevious.setOnClickListener(this);
-        songProgressBar = (SeekBar) findViewById(R.id.songProgressBar);
-        songCurrentDurationLabel = (TextView) findViewById(R.id.songCurrentDurationLabel);
-        songTotalDurationLabel = (TextView) findViewById(R.id.songTotalDurationLabel);
+		// set music player buttons, seekbar, time
+		btnPlay = (ImageButton) findViewById(R.id.btnPlay);
+		btnPlay.setOnClickListener(this);
+		btnForward = (ImageButton) findViewById(R.id.btnForward);
+		btnForward.setOnClickListener(this);
+		btnBackward = (ImageButton) findViewById(R.id.btnBackward);
+		btnBackward.setOnClickListener(this);
+		btnNext = (ImageButton) findViewById(R.id.btnNext);
+		btnNext.setOnClickListener(this);
+		btnPrevious = (ImageButton) findViewById(R.id.btnPrevious);
+		btnPrevious.setOnClickListener(this);
+		songProgressBar = (SeekBar) findViewById(R.id.songProgressBar);
+		songCurrentDurationLabel = (TextView) findViewById(R.id.songCurrentDurationLabel);
+		songTotalDurationLabel = (TextView) findViewById(R.id.songTotalDurationLabel);
 
-    	utils = new Utilities();
-        
-        songProgressBar.setOnSeekBarChangeListener(this); 
-        // right.setOnClickListener(this);
-		//setController();
+		utils = new Utilities();
+
+		songProgressBar.setOnSeekBarChangeListener(this);
+		// right.setOnClickListener(this);
+		// setController();
 
 	}
 
 	@Override
-	public void onStart() {
+	public void onStart()
+	// typically avoided, but needed here to start music service before activity
+	// comes to the screen
+	{
 		super.onStart();
 		if (playIntent == null) {
 
@@ -149,24 +151,34 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 		}
 	}
 
-	public void songPicked(View view) {
+	public void songPicked(View view)
+	// song is picked from the list view
+	{
 		musicServ.setSong(Integer.parseInt(view.getTag().toString()));
+		 
 		musicServ.playSong();
 
+		// if playback was previously paused, unpause it
 		if (playbackPaused) {
-	
+
 			playbackPaused = false;
 		}
-		
+
+		// because music is playing, set the play button to display pause
 		btnPlay.setImageResource(R.drawable.btn_pause);
+
+		// reset the progress bar
 		songProgressBar.setProgress(0);
 		songProgressBar.setMax(100);
-		
+
+		// start the thread which continually updates the progress bar
 		updateProgressBar();
-		
+
 	}
 
-	private ServiceConnection musicConnection = new ServiceConnection() {
+	private ServiceConnection musicConnection = new ServiceConnection()
+	// used to monitor the state of the service
+	{
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
@@ -184,7 +196,9 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 		}
 	};
 
-	public void getSongList() {
+	public void getSongList()
+	// retrieves songs from media store, adds them to song list
+	{
 		ContentResolver musicResolver = getContentResolver();
 		Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
 		Cursor musicCursor = musicResolver.query(musicUri, null, null, null,
@@ -212,27 +226,18 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 	}
 
 	@Override
-	public void onDestroy() {
+	public void onDestroy()
+	// shutdown all background services before app is destroyed
+	{
 		stopService(playIntent);
 		musicServ = null;
 		super.onDestroy();
 
 	}
 
-	/*
-	 * @Override public void onListItemClick(ListView listView, View
-	 * clickedView, int position, long id) { super.onListItemClick(listView,
-	 * clickedView, position, id);
-	 * 
-	 * // TextView tv = (TextView)clickedView;
-	 * 
-	 * // String song = tv.getText().toString();
-	 * 
-	 * songPicked(clickedView);
-	 * 
-	 * }
-	 */
-	private void onRecord(boolean start) {
+	private void onRecord(boolean start)
+	// record button is pressed
+	{
 		if (start) {
 			startRecording();
 		} else {
@@ -276,10 +281,8 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
+
 						String value = input.getText().toString();
-						// mFileName =
-						// Environment.getExternalStorageDirectory().getAbsolutePath();
 						mFileName = "/Music/cordit/" + value + ".3gp";
 
 						// check if name exists
@@ -368,14 +371,13 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 
-		case R.id.action_shuffle:
-			musicServ.setShuffle();
-			// musicServ.setShuffle();
-			break;
 		case R.id.action_end:
 			stopService(playIntent);
 			musicServ = null;
-			// musicServ = null;
+			if (mRecorder != null) {
+				mRecorder.release();
+			}
+			mRecorder = null;
 			System.exit(0);
 			break;
 
@@ -388,9 +390,10 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 	public void onClick(View v) {
 
 		int currentPosition = 0;
-		
+
 		switch (v.getId()) {
 		case R.id.record_button:
+
 			boolean mStartRecording = true;
 
 			onRecord(mStartRecording);
@@ -405,65 +408,56 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 			break;
 
 		case R.id.btnForward:
-			currentPosition = musicServ.getPosn();
-			if(currentPosition + seekForwardTime <= musicServ.getDur())
-			{
-				musicServ.seek(currentPosition + seekForwardTime);
-			}
-			else
-			{
-				musicServ.seek(musicServ.getDur());
+			if (musicServ != null) {
+				currentPosition = getCurrentPosition();
+				if (currentPosition + seekForwardTime <= getDuration()) {
+					musicServ.seek(currentPosition + seekForwardTime);
+				} else {
+					musicServ.seek(getDuration());
+				}
 			}
 			break;
-			
+
 		case R.id.btnBackward:
-			currentPosition = musicServ.getPosn();
-			if(currentPosition - seekBackwardTime >= 0)
-			{
-				musicServ.seek(currentPosition - seekBackwardTime);
+			if (musicServ != null) {
+				currentPosition = getCurrentPosition();
+				if (currentPosition - seekBackwardTime >= 0) {
+					musicServ.seek(currentPosition - seekBackwardTime);
+				} else {
+					musicServ.seek(0);
+				}
 			}
-			else
-			{
-				musicServ.seek(0);
-			}
-			
+
 			break;
-		
+
 		case R.id.btnNext:
 			playNext();
 			break;
-			
+
 		case R.id.btnPrevious:
 			playPrev();
 			break;
-			
+
 		case R.id.btnPlay:
-			//if the music is already playing, pause player
-			if(musicServ.isPng())
-			{
-				if(musicServ!=null)
-				{
+			// if the music is already playing, pause player
+			if (isPlaying()) {
+				if (musicServ != null) {
 					musicServ.pausePlayer();
 					btnPlay.setImageResource(R.drawable.btn_play);
+					playbackPaused = true;
 				}
-			}else//if the music is not playing
+			} else// if the music is not playing
 			{
-				if(musicServ!=null)
-				{
-					if(musicServ.getPosn()==0)
-					{
-						musicServ.setSong(0);
-						musicServ.playSong();
-					}
-					else
-					{
-					musicServ.go();
-					btnPlay.setImageResource(R.drawable.btn_pause);
-					}
+				if (musicServ != null) {
+					
+						musicServ.go();
+						btnPlay.setImageResource(R.drawable.btn_pause);
+						playbackPaused = false;
+					
 				}
-				
+
 			}
-			
+
 		}
 
 	}
@@ -472,20 +466,19 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 	private void playNext() {
 		musicServ.playNext();
 		if (playbackPaused) {
-			//setController();
+
 			playbackPaused = false;
 		}
-		//controller.show(0);
 	}
 
 	// play previous
 	private void playPrev() {
 		musicServ.playPrev();
 		if (playbackPaused) {
-		//	setController();
+
 			playbackPaused = false;
 		}
-		//controller.show(0);
+
 	}
 
 	@Override
@@ -493,14 +486,14 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 		super.onResume();
 
 		if (paused) {
-			//setController();
+
 			paused = false;
 		}
 	}
 
 	@Override
 	public void onStop() {
-	//	controller.hide();
+
 		super.onStop();
 	}
 
@@ -508,52 +501,96 @@ public class MainActivity extends Activity implements OnClickListener, OnSeekBar
 	public void onProgressChanged(SeekBar seekBar, int progress,
 			boolean fromUser) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onStartTrackingTouch(SeekBar seekBar) {
-		
+
+		// reset the progress bar accordingly
 		mHandler.removeCallbacks(mUpdateTimeTask);
-		
+
 	}
 
 	@Override
 	public void onStopTrackingTouch(SeekBar seekBar) {
-		
-		 mHandler.removeCallbacks(mUpdateTimeTask);
-	     int totalDuration = musicServ.getDur();
-	     int currentPosition = utils.progressToTimer(seekBar.getProgress(), totalDuration);
-	 
-	        // forward or backward to certain seconds
-	       musicServ.seek(currentPosition);
-	 
-	        // update timer progress again
-	        updateProgressBar();
-		
+
+		mHandler.removeCallbacks(mUpdateTimeTask);
+		if (musicServ != null) {
+			int totalDuration = getDuration();
+			int currentPosition = utils.progressToTimer(seekBar.getProgress(),
+					totalDuration);
+
+			// forward or backward to certain seconds
+			musicServ.seek(currentPosition);
+
+			// update timer progress again
+			updateProgressBar();
+		}
+
+	}
+
+	public void updateProgressBar() {
+		// run the runnable on the handler after 100ms
+		mHandler.postDelayed(mUpdateTimeTask, 100);
+	}
+
+	private Runnable mUpdateTimeTask = new Runnable() {
+		// runs in the background to update the progress bar
+		public void run() {
+			
+				long totalDuration = getDuration();
+				long currentDuration = getCurrentPosition();
+
+				// Displaying Total Duration time
+				songTotalDurationLabel.setText(""
+						+ utils.milliSecondsToTimer(totalDuration));
+				// Displaying time completed playing
+				songCurrentDurationLabel.setText(""
+						+ utils.milliSecondsToTimer(currentDuration));
+
+				// Updating progress bar
+				int progress = (int) (utils.getProgressPercentage(
+						currentDuration, totalDuration));
+
+				songProgressBar.setProgress(progress);
+
+				// Running this thread after 100 milliseconds
+				mHandler.postDelayed(this, 100);
+			
+		}
+	};
+	
+	public int getCurrentPosition()
+	{
+		if(musicServ!=null && musicBound && musicServ.isPng())
+		{
+			return musicServ.getPosn();
+		}
+		else
+		{
+			return 0;
+		}
 	}
 	
-	public void updateProgressBar() {
-        mHandler.postDelayed(mUpdateTimeTask, 100);
-    }  
-
- private Runnable mUpdateTimeTask = new Runnable() {
-     public void run() {
-         long totalDuration = musicServ.getDur();
-         long currentDuration = musicServ.getPosn();
-
-         // Displaying Total Duration time
-         songTotalDurationLabel.setText(""+utils.milliSecondsToTimer(totalDuration));
-         // Displaying time completed playing
-         songCurrentDurationLabel.setText(""+utils.milliSecondsToTimer(currentDuration));
-
-         // Updating progress bar
-         int progress = (int)(utils.getProgressPercentage(currentDuration, totalDuration));
-      
-         songProgressBar.setProgress(progress);
-
-         // Running this thread after 100 milliseconds
-         mHandler.postDelayed(this, 100);
-     }
-  };
+	public int getDuration()
+	{
+		if(musicServ!=null && musicBound && musicServ.isPng())
+		{
+			return musicServ.getDur();
+		}
+		else
+		{
+			return 0;
+		}
+	}
+	
+	public boolean isPlaying()
+	{
+		if(musicServ!=null && musicBound)
+		{
+			return musicServ.isPng();
+		}
+		return false;
+	}
 }

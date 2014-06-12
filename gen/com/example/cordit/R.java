@@ -1100,11 +1100,10 @@ containing a value of this type.
         public static final int img_seekbar_bg=0x7f02006b;
         public static final int img_seekbar_progress_blue=0x7f02006c;
         public static final int play=0x7f02006d;
-        public static final int rand=0x7f02006e;
-        public static final int roundedbutton=0x7f02006f;
-        public static final int seek_handler=0x7f020070;
-        public static final int seekbar_progress=0x7f020071;
-        public static final int seekbar_progress_bg=0x7f020072;
+        public static final int roundedbutton=0x7f02006e;
+        public static final int seek_handler=0x7f02006f;
+        public static final int seekbar_progress=0x7f020070;
+        public static final int seekbar_progress_bg=0x7f020071;
     }
     public static final class id {
         public static final int action_bar=0x7f05001c;
@@ -1115,11 +1114,10 @@ containing a value of this type.
         public static final int action_bar_subtitle=0x7f050023;
         public static final int action_bar_title=0x7f050022;
         public static final int action_context_bar=0x7f05001d;
-        public static final int action_end=0x7f05004c;
+        public static final int action_end=0x7f05004b;
         public static final int action_menu_divider=0x7f050016;
         public static final int action_menu_presenter=0x7f050017;
         public static final int action_mode_close_button=0x7f050024;
-        public static final int action_shuffle=0x7f05004b;
         public static final int activity_chooser_view_content=0x7f050025;
         public static final int always=0x7f05000b;
         public static final int beginning=0x7f050011;
@@ -1238,10 +1236,9 @@ containing a value of this type.
         public static final int activity_chord=0x7f030018;
         public static final int activity_main=0x7f030019;
         public static final int bg_player_footer=0x7f03001a;
-        public static final int player=0x7f03001b;
-        public static final int rounded_corner=0x7f03001c;
-        public static final int song=0x7f03001d;
-        public static final int support_simple_spinner_dropdown_item=0x7f03001e;
+        public static final int rounded_corner=0x7f03001b;
+        public static final int song=0x7f03001c;
+        public static final int support_simple_spinner_dropdown_item=0x7f03001d;
     }
     public static final class menu {
         public static final int main=0x7f0c0000;

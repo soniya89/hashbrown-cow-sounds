@@ -9,13 +9,11 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.SeekBar;
-import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Toast;
 
 import java.util.Random;
 
@@ -28,13 +26,17 @@ public class MusicService extends Service implements
 		MediaPlayer.OnCompletionListener, MediaPlayer.OnPreparedListener,
 		MediaPlayer.OnErrorListener {
 
+	//for binding to the main activity
 	private final IBinder musicBind = new MusicBinder();
+	//for playing music
 	private MediaPlayer player;
+	
+	//to control the songs
 	private ArrayList<Song> songs;
 	private int songPos;
-	private String songTitle = "";;
+	private String songTitle = "";
+	
 	private static final int NOTIFY_ID = 1;
-	private boolean shuffle = false;
 	private Random rand;
 
 
@@ -94,6 +96,7 @@ public class MusicService extends Service implements
 		Song playSong = songs.get(songPos);
 
 		songTitle = playSong.getTitle();
+		
 		long currSong = playSong.getID();
 
 		// set uri, uri is a reference to data on the device, you have to
@@ -129,8 +132,6 @@ public class MusicService extends Service implements
 
 	@Override
 	public void onPrepared(MediaPlayer mp) {
-
-		//MainActivity.getMController().show(0);
 
 		player.start();
 
@@ -187,17 +188,10 @@ public class MusicService extends Service implements
 	}
 
 	public void playNext() {
-		if (shuffle) {
-			int newSong = songPos;
-			while (newSong == songPos) {
-				newSong = rand.nextInt(songs.size());
-			}
-			songPos = newSong;
-		} else {
+
 			songPos++;
 			if (songPos >= songs.size())
 				songPos = 0;
-		}
 		playSong();
 	}
 
@@ -206,11 +200,5 @@ public class MusicService extends Service implements
 		stopForeground(true);
 	}
 
-	public void setShuffle() {
-		if (shuffle)
-			shuffle = false;
-		else
-			shuffle = true;
-	}
 
 }

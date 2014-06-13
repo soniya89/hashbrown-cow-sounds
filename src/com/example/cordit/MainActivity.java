@@ -66,7 +66,8 @@ public class MainActivity extends Activity implements OnClickListener,
 	private boolean musicBound = false;
 	private boolean paused = false;
 	private boolean playbackPaused = false;
-
+	private boolean disableMediaPlayer = false;
+	private boolean mStartRecording = true;
 	// media player
 	private ImageButton btnPlay;
 	private ImageButton btnForward;
@@ -76,12 +77,15 @@ public class MainActivity extends Activity implements OnClickListener,
 	private SeekBar songProgressBar;
 	private TextView songCurrentDurationLabel;
 	private TextView songTotalDurationLabel;
+	private TextView theTitle;
 
 	private Handler mHandler = new Handler();
 	private Utilities utils;
 
 	private int seekForwardTime = 5000; // 5000 milliseconds
 	private int seekBackwardTime = 5000; // 5000 milliseconds
+	
+	private boolean startedPlayingOnce = false;
 
 	@Override
 	public void onCreate(Bundle data) {
@@ -91,12 +95,11 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		// default storage location for audio file
 		mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-		mFileName += "/Music/cordit/audiorecordtest.3gp";
+		mFileName += "/audiorecordtest.3gp";
 
 		// set up record button
 		mRecordButton = (Button) findViewById(R.id.record_button);
 		mRecordButton.setText("RECORD");
-		mRecordButton.setTextColor(Color.YELLOW);
 		mRecordButton.setOnClickListener(this);
 		getWindow().getDecorView().setBackgroundColor(Color.DKGRAY);
 
@@ -127,13 +130,12 @@ public class MainActivity extends Activity implements OnClickListener,
 		songProgressBar = (SeekBar) findViewById(R.id.songProgressBar);
 		songCurrentDurationLabel = (TextView) findViewById(R.id.songCurrentDurationLabel);
 		songTotalDurationLabel = (TextView) findViewById(R.id.songTotalDurationLabel);
+		theTitle = (TextView)findViewById(R.id.title);
 
 		utils = new Utilities();
 
 		songProgressBar.setOnSeekBarChangeListener(this);
-		// right.setOnClickListener(this);
-		// setController();
-
+	
 	}
 
 	@Override
@@ -154,16 +156,22 @@ public class MainActivity extends Activity implements OnClickListener,
 	public void songPicked(View view)
 	// song is picked from the list view
 	{
+		if(disableMediaPlayer == false)
+		{
+		startedPlayingOnce = true;
 		musicServ.setSong(Integer.parseInt(view.getTag().toString()));
 		 
 		musicServ.playSong();
 
+		String songTitle = songList.get(Integer.parseInt(view.getTag().toString())).getTitle();
+        theTitle.setText(songTitle);
+        
 		// if playback was previously paused, unpause it
 		if (playbackPaused) {
 
 			playbackPaused = false;
 		}
-
+		
 		// because music is playing, set the play button to display pause
 		btnPlay.setImageResource(R.drawable.btn_pause);
 
@@ -173,6 +181,12 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		// start the thread which continually updates the progress bar
 		updateProgressBar();
+		}
+		else
+		{
+			 Toast.makeText(this, "Audio recording in progress!",
+			 Toast.LENGTH_SHORT).show();
+		}
 
 	}
 
@@ -239,9 +253,16 @@ public class MainActivity extends Activity implements OnClickListener,
 	// record button is pressed
 	{
 		if (start) {
+			disableMediaPlayer = true;
+			if (musicServ != null) {
+				musicServ.pausePlayer();
+				btnPlay.setImageResource(R.drawable.btn_play);
+				playbackPaused = true;
+			}
 			startRecording();
 		} else {
 			stopRecording();
+			disableMediaPlayer = false;
 		}
 	}
 
@@ -250,6 +271,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
 		mRecorder.setOutputFile(mFileName);
+		Log.e(LOG_TAG, mFileName);
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
 
 		try {
@@ -394,8 +416,8 @@ public class MainActivity extends Activity implements OnClickListener,
 		switch (v.getId()) {
 		case R.id.record_button:
 
-			boolean mStartRecording = true;
-
+			//stop playing any music
+			
 			onRecord(mStartRecording);
 			if (mStartRecording) {
 				mRecordButton.setText("Stop recording");
@@ -408,6 +430,8 @@ public class MainActivity extends Activity implements OnClickListener,
 			break;
 
 		case R.id.btnForward:
+			if(disableMediaPlayer == false)
+			{
 			if (musicServ != null) {
 				currentPosition = getCurrentPosition();
 				if (currentPosition + seekForwardTime <= getDuration()) {
@@ -416,9 +440,17 @@ public class MainActivity extends Activity implements OnClickListener,
 					musicServ.seek(getDuration());
 				}
 			}
+			}
+			else
+			{
+				Toast.makeText(this, "Audio recording in progress!",
+						 Toast.LENGTH_SHORT).show();
+			}
 			break;
 
 		case R.id.btnBackward:
+			if(disableMediaPlayer == false)
+			{
 			if (musicServ != null) {
 				currentPosition = getCurrentPosition();
 				if (currentPosition - seekBackwardTime >= 0) {
@@ -427,18 +459,44 @@ public class MainActivity extends Activity implements OnClickListener,
 					musicServ.seek(0);
 				}
 			}
+			}
+			else
+			{
+				Toast.makeText(this, "Audio recording in progress!",
+						 Toast.LENGTH_SHORT).show();
+			}
 
 			break;
 
 		case R.id.btnNext:
+			if(disableMediaPlayer == false)
+			{
 			playNext();
+			}
+			else
+			{
+				Toast.makeText(this, "Audio recording in progress!",
+						 Toast.LENGTH_SHORT).show();
+			}
 			break;
 
 		case R.id.btnPrevious:
+			if(disableMediaPlayer == false)
+			{
+				
+			
 			playPrev();
+			}
+			else
+			{
+				Toast.makeText(this, "Audio recording in progress!",
+						 Toast.LENGTH_SHORT).show();
+			}
 			break;
 
 		case R.id.btnPlay:
+			if(disableMediaPlayer == false)
+			{
 			// if the music is already playing, pause player
 			if (isPlaying()) {
 				if (musicServ != null) {
@@ -448,16 +506,50 @@ public class MainActivity extends Activity implements OnClickListener,
 				}
 			} else// if the music is not playing
 			{
-				if (musicServ != null) {
-					
+				if (musicServ != null && musicBound) {
+					if(startedPlayingOnce == false)
+					{
+						startedPlayingOnce = true;
+						musicServ.setSong(0);
+						 
+						musicServ.playSong();
+						
+						// because music is playing, set the play button to display pause
+						btnPlay.setImageResource(R.drawable.btn_pause);
+
+						// reset the progress bar
+						songProgressBar.setProgress(0);
+						songProgressBar.setMax(100);
+
+						// start the thread which continually updates the progress bar
+						updateProgressBar();
+						
+						playbackPaused = false;
+			
+					}
+					else
+					{
+	
 						musicServ.go();
 						btnPlay.setImageResource(R.drawable.btn_pause);
 						playbackPaused = false;
+			
+						
+						
+					}
 					
 				}
 
 			}
 
+		}
+		
+		else
+		{
+			Toast.makeText(this, "Audio recording in progress!",
+					 Toast.LENGTH_SHORT).show();
+		}
+			break;
 		}
 
 	}
@@ -515,6 +607,8 @@ public class MainActivity extends Activity implements OnClickListener,
 	@Override
 	public void onStopTrackingTouch(SeekBar seekBar) {
 
+		if(disableMediaPlayer == false)
+		{
 		mHandler.removeCallbacks(mUpdateTimeTask);
 		if (musicServ != null) {
 			int totalDuration = getDuration();
@@ -527,21 +621,37 @@ public class MainActivity extends Activity implements OnClickListener,
 			// update timer progress again
 			updateProgressBar();
 		}
+		}
+		else
+		{
+			Toast.makeText(this, "Audio recording in progress!",
+					 Toast.LENGTH_SHORT).show();
+		}
 
 	}
 
 	public void updateProgressBar() {
 		// run the runnable on the handler after 100ms
+		if(disableMediaPlayer == false)
+		{
 		mHandler.postDelayed(mUpdateTimeTask, 100);
+		}
+		else
+		{
+			Toast.makeText(this, "Audio recording in progress!",
+					 Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	private Runnable mUpdateTimeTask = new Runnable() {
 		// runs in the background to update the progress bar
 		public void run() {
 			
+			if(playbackPaused == false)
+			{
 				long totalDuration = getDuration();
 				long currentDuration = getCurrentPosition();
-
+				
 				// Displaying Total Duration time
 				songTotalDurationLabel.setText(""
 						+ utils.milliSecondsToTimer(totalDuration));
@@ -558,27 +668,78 @@ public class MainActivity extends Activity implements OnClickListener,
 				// Running this thread after 100 milliseconds
 				mHandler.postDelayed(this, 100);
 			
+			}
+			else
+			{
+				long totalDuration = getDurationWhenPaused();
+				long currentDuration = getCurrentPositionWhenPaused();
+				
+				// Displaying Total Duration time
+				songTotalDurationLabel.setText(""
+						+ utils.milliSecondsToTimer(totalDuration));
+				// Displaying time completed playing
+				songCurrentDurationLabel.setText(""
+						+ utils.milliSecondsToTimer(currentDuration));
+
+				// Updating progress bar
+				int progress = (int) (utils.getProgressPercentage(
+						currentDuration, totalDuration));
+
+				songProgressBar.setProgress(progress);
+
+				// Running this thread after 100 milliseconds
+				mHandler.postDelayed(this, 100);
+			
+			}
+
+				
 		}
 	};
 	
+	public int getCurrentPositionWhenPaused()
+	{
+		if(musicServ!=null && musicBound)
+		{
+			return musicServ.getPosn();
+		}
+
+		else
+		{
+			return 0;
+		}
+	}
 	public int getCurrentPosition()
 	{
 		if(musicServ!=null && musicBound && musicServ.isPng())
 		{
 			return musicServ.getPosn();
 		}
+
 		else
 		{
 			return 0;
 		}
 	}
 	
+	public int getDurationWhenPaused()
+	{
+		if(musicServ!=null && musicBound)
+		{
+			return musicServ.getDur();
+		}
+
+		else
+		{
+			return 0;
+		}
+	}
 	public int getDuration()
 	{
 		if(musicServ!=null && musicBound && musicServ.isPng())
 		{
 			return musicServ.getDur();
 		}
+
 		else
 		{
 			return 0;

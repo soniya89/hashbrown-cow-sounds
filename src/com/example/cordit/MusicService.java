@@ -13,7 +13,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.Random;
 
@@ -194,11 +193,17 @@ public class MusicService extends Service implements
 				songPos = 0;
 		playSong();
 	}
+	
+	public int getSongIndex()
+	{
+		return songPos;
+	}
 
 	@Override
 	public void onDestroy() {
 		stopForeground(true);
 	}
+
 
 
 }

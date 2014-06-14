@@ -430,22 +430,6 @@ public class MainActivity extends Activity implements OnClickListener,
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 
-		case R.id.action_overflow:
-		
-			if(myMusicSelected == false)
-			{
-				myMusicSelected = true;
-				Toast.makeText(this, "Selected MY Music",
-						 Toast.LENGTH_SHORT).show();
-			}
-			else
-			{
-				myMusicSelected = false;
-				Toast.makeText(this, "Selected ALL Music",
-						 Toast.LENGTH_SHORT).show();
-			}
-			
-			break;
 		case R.id.action_end:
 			stopService(playIntent);
 			musicServ = null;
@@ -486,6 +470,20 @@ public class MainActivity extends Activity implements OnClickListener,
 			if(disableMediaPlayer == false)
 			{
 			if (musicServ != null) {
+				
+				 if(startedPlayingOnce == false)
+			        {
+			        	String songTitle = songList.get(musicServ.getSongIndex()).getTitle();
+				        theTitle.setText(songTitle);
+				        
+			        	songProgressBar.setProgress(0);
+						songProgressBar.setMax(100);
+
+						// start the thread which continually updates the progress bar
+						updateProgressBar();
+						startedPlayingOnce = true;
+						btnPlay.setImageResource(R.drawable.btn_pause);
+			        }
 				currentPosition = getCurrentPosition();
 				if (currentPosition + seekForwardTime <= getDuration()) {
 					musicServ.seek(currentPosition + seekForwardTime);
@@ -505,6 +503,20 @@ public class MainActivity extends Activity implements OnClickListener,
 			if(disableMediaPlayer == false)
 			{
 			if (musicServ != null) {
+			
+		        if(startedPlayingOnce == false)
+		        {
+		        	String songTitle = songList.get(musicServ.getSongIndex()).getTitle();
+			        theTitle.setText(songTitle);
+			        
+		        	songProgressBar.setProgress(0);
+					songProgressBar.setMax(100);
+
+					// start the thread which continually updates the progress bar
+					updateProgressBar();
+					startedPlayingOnce = true;
+					btnPlay.setImageResource(R.drawable.btn_pause);
+		        }
 				currentPosition = getCurrentPosition();
 				if (currentPosition - seekBackwardTime >= 0) {
 					musicServ.seek(currentPosition - seekBackwardTime);
@@ -525,6 +537,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			if(disableMediaPlayer == false)
 			{
 			playNext();
+				
 			}
 			else
 			{
@@ -614,6 +627,16 @@ public class MainActivity extends Activity implements OnClickListener,
 		musicServ.playNext();
 		String songTitle = songList.get(musicServ.getSongIndex()).getTitle();
         theTitle.setText(songTitle);
+        if(startedPlayingOnce == false)
+        {
+        	songProgressBar.setProgress(0);
+			songProgressBar.setMax(100);
+
+			// start the thread which continually updates the progress bar
+			updateProgressBar();
+			startedPlayingOnce = true;
+			btnPlay.setImageResource(R.drawable.btn_pause);
+        }
 
 		if (playbackPaused) {
 
@@ -626,6 +649,17 @@ public class MainActivity extends Activity implements OnClickListener,
 		musicServ.playPrev();
 		String songTitle = songList.get(musicServ.getSongIndex()).getTitle();
         theTitle.setText(songTitle);
+        
+        if(startedPlayingOnce == false)
+        {
+        songProgressBar.setProgress(0);
+		songProgressBar.setMax(100);
+
+		// start the thread which continually updates the progress bar
+		updateProgressBar();
+		startedPlayingOnce = true;
+		btnPlay.setImageResource(R.drawable.btn_pause);
+        }
 		if (playbackPaused) {
 
 			playbackPaused = false;

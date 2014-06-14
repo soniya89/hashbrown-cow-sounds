@@ -28,7 +28,7 @@
    android:contentDescription="click"
    android:layout_width="?android:attr/listPreferredItemHeight"
    android:layout_height="fill_parent"
-   android:src="@drawable/ic_launcher"
+   android:src="@drawable/ic_action_attach"
    android:scaleType="center"
    android:clickable="true"
    android:layout_alignParentRight="true"

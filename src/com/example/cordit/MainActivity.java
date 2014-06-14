@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import android.app.ActionBar;
+import android.app.ActionBar.OnNavigationListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -29,11 +31,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SeekBar;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -41,8 +46,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import com.example.cordit.MusicService.MusicBinder;
 
 public class MainActivity extends Activity implements OnClickListener,
-		OnSeekBarChangeListener {
-
+		OnSeekBarChangeListener{
 	private static final String LOG_TAG = "AudioRecordTest";
 
 	// recording
@@ -68,6 +72,8 @@ public class MainActivity extends Activity implements OnClickListener,
 	private boolean playbackPaused = false;
 	private boolean disableMediaPlayer = false;
 	private boolean mStartRecording = true;
+	private boolean myMusicSelected = false;
+
 	// media player
 	private ImageButton btnPlay;
 	private ImageButton btnForward;
@@ -81,7 +87,7 @@ public class MainActivity extends Activity implements OnClickListener,
 
 	private Handler mHandler = new Handler();
 	private Utilities utils;
-
+	
 	private int seekForwardTime = 5000; // 5000 milliseconds
 	private int seekBackwardTime = 5000; // 5000 milliseconds
 	
@@ -210,6 +216,36 @@ public class MainActivity extends Activity implements OnClickListener,
 		}
 	};
 
+
+	public void getMySongList()
+	{
+		ContentResolver musicResolver = getContentResolver();
+		Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+		Cursor musicCursor = musicResolver.query(musicUri, null, null, null,
+				null);
+
+		if (musicCursor != null && musicCursor.moveToFirst()) {
+			// get column indexes for data items
+			int titleColumn = musicCursor
+					.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
+			int idColumn = musicCursor
+					.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
+			int artistColumn = musicCursor
+					.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
+
+			do {
+				// create a new song object
+				long thisId = musicCursor.getLong(idColumn);
+				String thisArtist = musicCursor.getString(artistColumn);
+				String thisTitle = musicCursor.getString(titleColumn);
+				if(thisArtist.equals("Tycho"))
+				{
+				songList.add(new Song(thisId, thisTitle, thisArtist));
+				}
+			} while (musicCursor.moveToNext());
+
+		}
+	}
 	public void getSongList()
 	// retrieves songs from media store, adds them to song list
 	{
@@ -386,6 +422,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main, menu);
+		    
 		return true;
 	}
 
@@ -393,6 +430,22 @@ public class MainActivity extends Activity implements OnClickListener,
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 
+		case R.id.action_overflow:
+		
+			if(myMusicSelected == false)
+			{
+				myMusicSelected = true;
+				Toast.makeText(this, "Selected MY Music",
+						 Toast.LENGTH_SHORT).show();
+			}
+			else
+			{
+				myMusicSelected = false;
+				Toast.makeText(this, "Selected ALL Music",
+						 Toast.LENGTH_SHORT).show();
+			}
+			
+			break;
 		case R.id.action_end:
 			stopService(playIntent);
 			musicServ = null;
@@ -517,6 +570,8 @@ public class MainActivity extends Activity implements OnClickListener,
 						// because music is playing, set the play button to display pause
 						btnPlay.setImageResource(R.drawable.btn_pause);
 
+						String songTitle = songList.get(musicServ.getPosn()).getTitle();
+				        theTitle.setText(songTitle);
 						// reset the progress bar
 						songProgressBar.setProgress(0);
 						songProgressBar.setMax(100);
@@ -557,6 +612,9 @@ public class MainActivity extends Activity implements OnClickListener,
 	// play next
 	private void playNext() {
 		musicServ.playNext();
+		String songTitle = songList.get(musicServ.getSongIndex()).getTitle();
+        theTitle.setText(songTitle);
+
 		if (playbackPaused) {
 
 			playbackPaused = false;
@@ -566,6 +624,8 @@ public class MainActivity extends Activity implements OnClickListener,
 	// play previous
 	private void playPrev() {
 		musicServ.playPrev();
+		String songTitle = songList.get(musicServ.getSongIndex()).getTitle();
+        theTitle.setText(songTitle);
 		if (playbackPaused) {
 
 			playbackPaused = false;
@@ -662,6 +722,13 @@ public class MainActivity extends Activity implements OnClickListener,
 				// Updating progress bar
 				int progress = (int) (utils.getProgressPercentage(
 						currentDuration, totalDuration));
+				
+				if(progress == 0)
+				{
+					String songTitle = songList.get(musicServ.getSongIndex()).getTitle();
+			        theTitle.setText(songTitle);
+				}
+				
 
 				songProgressBar.setProgress(progress);
 
@@ -686,6 +753,12 @@ public class MainActivity extends Activity implements OnClickListener,
 						currentDuration, totalDuration));
 
 				songProgressBar.setProgress(progress);
+				
+				if(progress == 0)
+				{
+					String songTitle = songList.get(musicServ.getSongIndex()).getTitle();
+			        theTitle.setText(songTitle);
+				}
 
 				// Running this thread after 100 milliseconds
 				mHandler.postDelayed(this, 100);
@@ -754,4 +827,5 @@ public class MainActivity extends Activity implements OnClickListener,
 		}
 		return false;
 	}
+
 }

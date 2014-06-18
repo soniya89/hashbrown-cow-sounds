@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -24,6 +25,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -100,8 +102,10 @@ public class MainActivity extends Activity implements OnClickListener,
 		setContentView(R.layout.activity_main);
 
 		// default storage location for audio file
+		//full path to the sd card
 		mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-		mFileName += "/audiorecordtest.3gp";
+
+		mFileName += "/Music/audiorecordtest.3gp";
 
 		// set up record button
 		mRecordButton = (Button) findViewById(R.id.record_button);
@@ -216,36 +220,6 @@ public class MainActivity extends Activity implements OnClickListener,
 		}
 	};
 
-
-	public void getMySongList()
-	{
-		ContentResolver musicResolver = getContentResolver();
-		Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-		Cursor musicCursor = musicResolver.query(musicUri, null, null, null,
-				null);
-
-		if (musicCursor != null && musicCursor.moveToFirst()) {
-			// get column indexes for data items
-			int titleColumn = musicCursor
-					.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
-			int idColumn = musicCursor
-					.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
-			int artistColumn = musicCursor
-					.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
-
-			do {
-				// create a new song object
-				long thisId = musicCursor.getLong(idColumn);
-				String thisArtist = musicCursor.getString(artistColumn);
-				String thisTitle = musicCursor.getString(titleColumn);
-				if(thisArtist.equals("Tycho"))
-				{
-				songList.add(new Song(thisId, thisTitle, thisArtist));
-				}
-			} while (musicCursor.moveToNext());
-
-		}
-	}
 	public void getSongList()
 	// retrieves songs from media store, adds them to song list
 	{
@@ -268,7 +242,10 @@ public class MainActivity extends Activity implements OnClickListener,
 				long thisId = musicCursor.getLong(idColumn);
 				String thisArtist = musicCursor.getString(artistColumn);
 				String thisTitle = musicCursor.getString(titleColumn);
+				if(thisArtist.equals("my_cordit_recordings"))
+				{
 				songList.add(new Song(thisId, thisTitle, thisArtist));
+				}
 			} while (musicCursor.moveToNext());
 
 		}
@@ -291,7 +268,10 @@ public class MainActivity extends Activity implements OnClickListener,
 		if (start) {
 			disableMediaPlayer = true;
 			if (musicServ != null) {
+				if(musicServ.isPng())
+				{
 				musicServ.pausePlayer();
+				}
 				btnPlay.setImageResource(R.drawable.btn_play);
 				playbackPaused = true;
 			}
@@ -305,7 +285,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	private void startRecording() {
 		mRecorder = new MediaRecorder();
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
 		mRecorder.setOutputFile(mFileName);
 		Log.e(LOG_TAG, mFileName);
 		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
@@ -340,22 +320,34 @@ public class MainActivity extends Activity implements OnClickListener,
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 
-						String value = input.getText().toString();
-						mFileName = "/Music/cordit/" + value + ".3gp";
-
+						ContentResolver cResolver = getContentResolver();
+						ContentValues values = new ContentValues();
+						
 						// check if name exists
 						// titleExists(mFileName);
-
-						// Toast.makeText(this, mFileName,
-						// Toast.LENGTH_LONG).show();
-
+						
 						// rename audio file
 						File sdcard = Environment.getExternalStorageDirectory();
 						File from = new File(sdcard,
-								"Music/cordit/audiorecordtest.3gp");
+								"/Music/audiorecordtest.3gp");
+						
+						
+						String value = input.getText().toString();
+						mFileName = "/Music/" + value + ".3gp";
+						
 						File to = new File(sdcard, mFileName);
 						from.renameTo(to);
+						
+						values.put(MediaStore.MediaColumns.DATA, to.getAbsolutePath());
+						values.put(MediaStore.MediaColumns.TITLE, value);
+						values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/3gp");
+						values.put(MediaStore.Audio.Media.ARTIST, "my_cordit_recordings");
+						values.put(MediaStore.Audio.Media.IS_MUSIC, false);
+						
 
+						Uri uri = MediaStore.Audio.Media.getContentUriForPath(to.getAbsolutePath());
+						Uri uri2= cResolver.insert(uri, values);
+						
 					}
 				});
 
@@ -380,7 +372,7 @@ public class MainActivity extends Activity implements OnClickListener,
 
 						File dir = Environment.getExternalStorageDirectory();
 						File file = new File(dir,
-								"Music/cordit/audiorecordtest.3gp");
+								"Music/audiorecordtest.3gp");
 						boolean deleted = file.delete();
 
 					}

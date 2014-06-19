@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -39,13 +40,12 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SeekBar;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.example.cordit.MusicService.MusicBinder;
+import com.example.cordit.RecMicToMp3;
 
 public class MainActivity extends Activity implements OnClickListener,
 		OnSeekBarChangeListener{
@@ -64,6 +64,8 @@ public class MainActivity extends Activity implements OnClickListener,
 	// for music playback
 	private MusicService musicServ;
 	private Intent playIntent;
+	
+	private RecMicToMp3 mRecMicToMp3;
 
 	// song list
 	private ArrayList<Song> songList;
@@ -145,6 +147,45 @@ public class MainActivity extends Activity implements OnClickListener,
 		utils = new Utilities();
 
 		songProgressBar.setOnSeekBarChangeListener(this);
+		
+		/*
+		mRecMicToMp3.setHandle(new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+				switch (msg.what) {
+				case RecMicToMp3.MSG_REC_STARTED:
+				
+					break;
+				case RecMicToMp3.MSG_REC_STOPPED:
+					
+					break;
+				case RecMicToMp3.MSG_ERROR_GET_MIN_BUFFERSIZE:
+				
+					
+					break;
+				case RecMicToMp3.MSG_ERROR_CREATE_FILE:
+					
+					break;
+				case RecMicToMp3.MSG_ERROR_REC_START:
+					
+					break;
+				case RecMicToMp3.MSG_ERROR_AUDIO_RECORD:
+					
+					break;
+				case RecMicToMp3.MSG_ERROR_AUDIO_ENCODE:
+				
+					break;
+				case RecMicToMp3.MSG_ERROR_WRITE_FILE:
+					
+					break;
+				case RecMicToMp3.MSG_ERROR_CLOSE_FILE:
+					
+					break;
+				default:
+					break;
+				}
+			}
+		});*/
 	
 	}
 
@@ -282,7 +323,14 @@ public class MainActivity extends Activity implements OnClickListener,
 		}
 	}
 
+	
+	
 	private void startRecording() {
+		mRecMicToMp3 = new RecMicToMp3(
+				Environment.getExternalStorageDirectory() + "/testing.mp3", 8000);
+		
+		mRecMicToMp3.start();
+		/*
 		mRecorder = new MediaRecorder();
 		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
 		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
@@ -297,6 +345,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		}
 
 		mRecorder.start();
+		*/
 
 	}
 
@@ -320,6 +369,10 @@ public class MainActivity extends Activity implements OnClickListener,
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 
+						
+						mRecMicToMp3.stop();
+						
+						/*
 						ContentResolver cResolver = getContentResolver();
 						ContentValues values = new ContentValues();
 						
@@ -347,6 +400,7 @@ public class MainActivity extends Activity implements OnClickListener,
 
 						Uri uri = MediaStore.Audio.Media.getContentUriForPath(to.getAbsolutePath());
 						Uri uri2= cResolver.insert(uri, values);
+						*/
 						
 					}
 				});
@@ -392,8 +446,8 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		alertSaveSong.show();
 
-		mRecorder.stop();
-		mRecorder.release();
+	//	mRecorder.stop();
+	//	mRecorder.release();
 		mRecorder = null;
 	}
 

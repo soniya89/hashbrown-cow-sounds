@@ -19,6 +19,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.media.AudioManager;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
@@ -54,7 +55,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	// recording
 	private static String mFileName = null;
 	private Button mRecordButton = null;
-	private MediaRecorder mRecorder = null;
+	private RecMicToMp3 mRecMicToMp3;
 
 	// saving song
 	private EditText input;
@@ -65,11 +66,10 @@ public class MainActivity extends Activity implements OnClickListener,
 	private MusicService musicServ;
 	private Intent playIntent;
 	
-	private RecMicToMp3 mRecMicToMp3;
-
 	// song list
 	private ArrayList<Song> songList;
 	private ListView songView;
+	SongAdapter songAdt;
 
 	private boolean musicBound = false;
 	private boolean paused = false;
@@ -103,12 +103,6 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		setContentView(R.layout.activity_main);
 
-		// default storage location for audio file
-		//full path to the sd card
-		mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-
-		mFileName += "/Music/audiorecordtest.3gp";
-
 		// set up record button
 		mRecordButton = (Button) findViewById(R.id.record_button);
 		mRecordButton.setText("RECORD");
@@ -125,7 +119,7 @@ public class MainActivity extends Activity implements OnClickListener,
 				return a.getTitle().compareTo(b.getTitle());
 			}
 		});
-		SongAdapter songAdt = new SongAdapter(this, songList);
+		songAdt = new SongAdapter(this, songList);
 		songView.setAdapter(songAdt);
 
 		// set music player buttons, seekbar, time
@@ -147,6 +141,10 @@ public class MainActivity extends Activity implements OnClickListener,
 		utils = new Utilities();
 
 		songProgressBar.setOnSeekBarChangeListener(this);
+		
+		AudioManager audioManager = (AudioManager)getSystemService(Context.AUDIO_SERVICE);
+		int sb2value = audioManager.getStreamMaxVolume(audioManager.STREAM_MUSIC);
+		audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, sb2value, 0);
 		
 		/*
 		mRecMicToMp3.setHandle(new Handler() {
@@ -185,7 +183,8 @@ public class MainActivity extends Activity implements OnClickListener,
 					break;
 				}
 			}
-		});*/
+		});
+		*/
 	
 	}
 
@@ -327,30 +326,17 @@ public class MainActivity extends Activity implements OnClickListener,
 	
 	private void startRecording() {
 		mRecMicToMp3 = new RecMicToMp3(
-				Environment.getExternalStorageDirectory() + "/testing.mp3", 8000);
+				Environment.getExternalStorageDirectory() + "/Music/testing.mp3", 44100);
 		
 		mRecMicToMp3.start();
-		/*
-		mRecorder = new MediaRecorder();
-		mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-		mRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-		mRecorder.setOutputFile(mFileName);
-		Log.e(LOG_TAG, mFileName);
-		mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
-		try {
-			mRecorder.prepare();
-		} catch (IOException e) {
-			Log.e(LOG_TAG, "Prepare() failed");
-		}
-
-		mRecorder.start();
-		*/
 
 	}
 
 	private void stopRecording() {
 		// prompt user for song filename
+		
+		mRecMicToMp3.stop();
+		
 		input = new EditText(this);
 		alertSaveSong = new AlertDialog.Builder(this);
 
@@ -369,38 +355,46 @@ public class MainActivity extends Activity implements OnClickListener,
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
 
-						
-						mRecMicToMp3.stop();
-						
-						/*
 						ContentResolver cResolver = getContentResolver();
 						ContentValues values = new ContentValues();
-						
-						// check if name exists
-						// titleExists(mFileName);
 						
 						// rename audio file
 						File sdcard = Environment.getExternalStorageDirectory();
 						File from = new File(sdcard,
-								"/Music/audiorecordtest.3gp");
+								"/Music/testing.mp3");
 						
 						
 						String value = input.getText().toString();
-						mFileName = "/Music/" + value + ".3gp";
+						
+						/*
+						// check if name exists
+						boolean titleExist = titleExists(value);
+						
+						if(titleExist == false)
+						{*/
+						mFileName = "/Music/" + value + ".mp3";
 						
 						File to = new File(sdcard, mFileName);
 						from.renameTo(to);
 						
 						values.put(MediaStore.MediaColumns.DATA, to.getAbsolutePath());
 						values.put(MediaStore.MediaColumns.TITLE, value);
-						values.put(MediaStore.MediaColumns.MIME_TYPE, "audio/3gp");
 						values.put(MediaStore.Audio.Media.ARTIST, "my_cordit_recordings");
-						values.put(MediaStore.Audio.Media.IS_MUSIC, false);
+						values.put(MediaStore.Audio.Media.IS_MUSIC, true);
 						
-
 						Uri uri = MediaStore.Audio.Media.getContentUriForPath(to.getAbsolutePath());
 						Uri uri2= cResolver.insert(uri, values);
-						*/
+						
+						disableMediaPlayer = false;
+						updateProgressBar();
+						refreshSongList();
+						
+						/*
+						}
+						else
+						{
+							
+						}*/
 						
 					}
 				});
@@ -425,9 +419,15 @@ public class MainActivity extends Activity implements OnClickListener,
 						// TODO Auto-generated method stub
 
 						File dir = Environment.getExternalStorageDirectory();
+						
 						File file = new File(dir,
-								"Music/audiorecordtest.3gp");
+								"/Music/testing.mp3");
+						
 						boolean deleted = file.delete();
+					
+						disableMediaPlayer = false;
+						
+						updateProgressBar();
 
 					}
 				});
@@ -445,19 +445,15 @@ public class MainActivity extends Activity implements OnClickListener,
 				});
 
 		alertSaveSong.show();
-
-	//	mRecorder.stop();
-	//	mRecorder.release();
-		mRecorder = null;
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
 
-		if (mRecorder != null) {
-			mRecorder.release();
-			mRecorder = null;
+		if(mRecMicToMp3!=null)
+		{
+		mRecMicToMp3.stop();
 		}
 
 		paused = true;
@@ -479,10 +475,10 @@ public class MainActivity extends Activity implements OnClickListener,
 		case R.id.action_end:
 			stopService(playIntent);
 			musicServ = null;
-			if (mRecorder != null) {
-				mRecorder.release();
+			if(mRecMicToMp3!=null)
+			{
+			mRecMicToMp3.stop();
 			}
-			mRecorder = null;
 			System.exit(0);
 			break;
 
@@ -643,13 +639,11 @@ public class MainActivity extends Activity implements OnClickListener,
 					}
 					else
 					{
-	
+
 						musicServ.go();
 						btnPlay.setImageResource(R.drawable.btn_pause);
 						playbackPaused = false;
 			
-						
-						
 					}
 					
 				}
@@ -906,6 +900,20 @@ public class MainActivity extends Activity implements OnClickListener,
 			return musicServ.isPng();
 		}
 		return false;
+	}
+	
+	public void refreshSongList()
+	{
+		songList.clear();
+		getSongList();
+		// sort songs alphabetically
+		Collections.sort(songList, new Comparator<Song>() {
+			public int compare(Song a, Song b) {
+				return a.getTitle().compareTo(b.getTitle());
+			}
+		});
+	
+		songAdt.updateAdapter(songList);
 	}
 
 }

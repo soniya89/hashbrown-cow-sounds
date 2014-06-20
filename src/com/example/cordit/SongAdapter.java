@@ -56,7 +56,6 @@ public class SongAdapter extends BaseAdapter implements OnClickListener{
 
 		// get title and artist views
 		TextView songView = (TextView) songLay.findViewById(R.id.song_title);
-		TextView artistView = (TextView) songLay.findViewById(R.id.song_artist);
 		ImageView right = (ImageView)songLay.findViewById(R.id.right);
 
 		// get song using position
@@ -64,7 +63,6 @@ public class SongAdapter extends BaseAdapter implements OnClickListener{
 
 		// get title and artist strings
 		songView.setText(currSong.getTitle());
-		artistView.setText(currSong.getArtist());
 
 		// set position as tag
 		songLay.setTag(position);
@@ -82,6 +80,13 @@ public class SongAdapter extends BaseAdapter implements OnClickListener{
 		context.startActivity(intent);
 		
 	}
+	
+	 public void updateAdapter(ArrayList<Song> arrylst) {
+	        this.songs= arrylst;
+
+	        //and call notifyDataSetChanged
+	        notifyDataSetChanged();
+	    }
 
 
 }

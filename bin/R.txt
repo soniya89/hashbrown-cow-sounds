@@ -271,7 +271,7 @@ int id action_bar_root 0x7f05001a
 int id action_bar_subtitle 0x7f050023
 int id action_bar_title 0x7f050022
 int id action_context_bar 0x7f05001d
-int id action_end 0x7f05004b
+int id action_end 0x7f05004a
 int id action_menu_divider 0x7f050016
 int id action_menu_presenter 0x7f050017
 int id action_mode_close_button 0x7f050024
@@ -309,7 +309,7 @@ int id progress_circular 0x7f050018
 int id progress_horizontal 0x7f050019
 int id radio 0x7f05002f
 int id record_button 0x7f05003c
-int id right 0x7f05004a
+int id right 0x7f050049
 int id search_badge 0x7f050032
 int id search_bar 0x7f050031
 int id search_button 0x7f050033
@@ -327,7 +327,6 @@ int id showTitle 0x7f050006
 int id songCurrentDurationLabel 0x7f05003e
 int id songProgressBar 0x7f050040
 int id songTotalDurationLabel 0x7f05003f
-int id song_artist 0x7f050049
 int id song_list 0x7f050047
 int id song_title 0x7f050048
 int id split_action_bar 0x7f05001e

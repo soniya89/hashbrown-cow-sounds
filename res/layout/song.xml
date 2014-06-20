@@ -15,13 +15,7 @@
     android:layout_alignParentLeft="true"
     android:layout_alignParentTop="true" />
  
-  <TextView
-    android:id="@+id/song_artist"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:textColor="#FFFFFF99"
-    android:textSize="18sp"
-    android:layout_below="@id/song_title" />
+
   
   <ImageView
    android:id="@+id/right"

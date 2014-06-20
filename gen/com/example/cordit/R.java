@@ -1116,7 +1116,7 @@ containing a value of this type.
         public static final int action_bar_subtitle=0x7f050023;
         public static final int action_bar_title=0x7f050022;
         public static final int action_context_bar=0x7f05001d;
-        public static final int action_end=0x7f05004b;
+        public static final int action_end=0x7f05004a;
         public static final int action_menu_divider=0x7f050016;
         public static final int action_menu_presenter=0x7f050017;
         public static final int action_mode_close_button=0x7f050024;
@@ -1154,7 +1154,7 @@ containing a value of this type.
         public static final int progress_horizontal=0x7f050019;
         public static final int radio=0x7f05002f;
         public static final int record_button=0x7f05003c;
-        public static final int right=0x7f05004a;
+        public static final int right=0x7f050049;
         public static final int search_badge=0x7f050032;
         public static final int search_bar=0x7f050031;
         public static final int search_button=0x7f050033;
@@ -1172,7 +1172,6 @@ containing a value of this type.
         public static final int songCurrentDurationLabel=0x7f05003e;
         public static final int songProgressBar=0x7f050040;
         public static final int songTotalDurationLabel=0x7f05003f;
-        public static final int song_artist=0x7f050049;
         public static final int song_list=0x7f050047;
         public static final int song_title=0x7f050048;
         public static final int split_action_bar=0x7f05001e;

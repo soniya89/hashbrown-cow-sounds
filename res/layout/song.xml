@@ -9,14 +9,11 @@
     android:id="@+id/song_title"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:textColor="#FFFFFF99"
+    android:textColor="#FFFF00"
     android:textSize="20sp"
-    android:textStyle="bold"
     android:layout_alignParentLeft="true"
     android:layout_alignParentTop="true" />
- 
 
-  
   <ImageView
    android:id="@+id/right"
    android:contentDescription="click"

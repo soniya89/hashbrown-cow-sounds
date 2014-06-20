@@ -368,6 +368,7 @@ public class MainActivity extends Activity implements OnClickListener,
 						
 						/*
 						// check if name exists
+						 //check if name is null
 						boolean titleExist = titleExists(value);
 						
 						if(titleExist == false)

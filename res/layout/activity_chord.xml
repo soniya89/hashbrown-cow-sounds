@@ -4,5 +4,53 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-
+    <TextView 
+        android:id="@+id/song_title_note"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:textSize="30sp"
+        android:textColor="#FFFF00"
+     />
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+    <Button
+        android:background="@drawable/roundedbutton"
+        style="?android:attr/buttonBarButtonStyle"
+        android:id="@+id/save_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save Note"
+        android:textColor="#FFFF00"/>
+    <Button
+        android:background="@drawable/roundedbutton"
+        style="?android:attr/buttonBarButtonStyle"
+        android:id="@+id/delete_note_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete Note"
+        android:textColor="#FFFF00"/>
+    <Button
+        android:background="@drawable/roundedbutton"
+        style="?android:attr/buttonBarButtonStyle"
+        android:id="@+id/delete_song_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Delete Song"
+        android:textColor="#FF6600" />
+    </LinearLayout>
+    
+	<EditText
+	    android:id="@+id/chord_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+         android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:singleLine="false"
+        android:inputType="textMultiLine"/>
+	    
 </LinearLayout>

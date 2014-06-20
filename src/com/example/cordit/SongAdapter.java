@@ -7,6 +7,7 @@ import com.example.cordit.Song;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -77,6 +78,8 @@ public class SongAdapter extends BaseAdapter implements OnClickListener{
 
 		Intent intent = new Intent(context, ChordActivity.class);
 
+		int songPos = Integer.parseInt(v.getTag().toString());
+		intent.putExtra("song_title", songs.get(songPos).getTitle());
 		context.startActivity(intent);
 		
 	}

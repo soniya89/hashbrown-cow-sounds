@@ -102,7 +102,20 @@ public class MainActivity extends Activity implements OnClickListener,
 		super.onCreate(data);
 
 		setContentView(R.layout.activity_main);
-
+		
+		Toast.makeText(this, "oncreate",
+				 Toast.LENGTH_SHORT).show();
+		/*
+		Bundle bundle = getIntent().getExtras();
+		
+		if(bundle.isEmpty()==false)
+		{
+		String deletedSongTitle = bundle.getString("song_title");
+		
+		Toast.makeText(this, deletedSongTitle,
+				 Toast.LENGTH_SHORT).show();
+		}
+	*/
 		// set up record button
 		mRecordButton = (Button) findViewById(R.id.record_button);
 		mRecordButton.setText("RECORD");
@@ -194,6 +207,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	// comes to the screen
 	{
 		super.onStart();
+		
 		if (playIntent == null) {
 
 			// start the intent
@@ -710,8 +724,10 @@ public class MainActivity extends Activity implements OnClickListener,
 
 	@Override
 	public void onResume() {
+
 		super.onResume();
 
+		refreshSongList();
 		if (paused) {
 
 			paused = false;
@@ -916,5 +932,6 @@ public class MainActivity extends Activity implements OnClickListener,
 	
 		songAdt.updateAdapter(songList);
 	}
+
 
 }

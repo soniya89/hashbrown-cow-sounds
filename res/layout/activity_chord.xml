@@ -15,29 +15,33 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        style="?android:attr/buttonBarStyle">
     <Button
         android:background="@drawable/roundedbutton"
         style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/save_button"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:text="Save Note"
         android:textColor="#FFFF00"/>
     <Button
         android:background="@drawable/roundedbutton"
         style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/delete_note_button"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:text="Delete Note"
         android:textColor="#FFFF00"/>
     <Button
         android:background="@drawable/roundedbutton"
         style="?android:attr/buttonBarButtonStyle"
         android:id="@+id/delete_song_button"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:text="Delete Song"
         android:textColor="#FF6600" />
     </LinearLayout>
@@ -51,6 +55,7 @@
         android:layout_marginBottom="10dp"
         android:layout_marginTop="10dp"
         android:singleLine="false"
-        android:inputType="textMultiLine"/>
+        android:inputType="textMultiLine"
+        android:gravity="top|left"/>
 	    
 </LinearLayout>

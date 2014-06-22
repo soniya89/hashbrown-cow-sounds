@@ -12,6 +12,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -380,13 +381,16 @@ public class MainActivity extends Activity implements OnClickListener,
 						
 						String value = input.getText().toString();
 						
-						/*
-						// check if name exists
-						 //check if name is null
-						boolean titleExist = titleExists(value);
 						
-						if(titleExist == false)
-						{*/
+						boolean titleExist = titleExists(value);
+				
+						if(titleExist == true)
+						{
+							((ViewGroup) input.getParent()).removeView(input);
+							alertSaveSong.show();
+						}
+						else
+						{
 						mFileName = "/Music/" + value + ".mp3";
 						
 						File to = new File(sdcard, mFileName);
@@ -401,16 +405,14 @@ public class MainActivity extends Activity implements OnClickListener,
 						Uri uri2= cResolver.insert(uri, values);
 						
 						disableMediaPlayer = false;
-						updateProgressBar();
-						refreshSongList();
 						
-						/*
-						}
-						else
+						if(startedPlayingOnce == true)
 						{
-							
-						}*/
-						
+							updateProgressBar();
+						}
+						refreshSongList();
+						}
+				
 					}
 				});
 
@@ -433,13 +435,8 @@ public class MainActivity extends Activity implements OnClickListener,
 					public void onClick(DialogInterface dialog, int which) {
 						// TODO Auto-generated method stub
 
-						File dir = Environment.getExternalStorageDirectory();
+						deleteSong();
 						
-						File file = new File(dir,
-								"/Music/testing.mp3");
-						
-						boolean deleted = file.delete();
-					
 						disableMediaPlayer = false;
 						
 						updateProgressBar();
@@ -862,7 +859,7 @@ public class MainActivity extends Activity implements OnClickListener,
 	
 	public int getCurrentPositionWhenPaused()
 	{
-		if(musicServ!=null && musicBound)
+		if((musicServ!=null) && (musicBound))
 		{
 			return musicServ.getPosn();
 		}
@@ -931,6 +928,46 @@ public class MainActivity extends Activity implements OnClickListener,
 		});
 	
 		songAdt.updateAdapter(songList);
+	}
+	
+	public void deleteSong()
+	{
+		File dir = Environment.getExternalStorageDirectory();
+		
+		File file = new File(dir,
+				"/Music/testing.mp3");
+		
+		String[] retCol = {MediaStore.Audio.Media._ID};
+		Cursor cur = this.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, retCol, 
+				MediaStore.MediaColumns.DATA + "='" + file + "'", null, null);
+		
+		if(cur.getCount() == 0)
+		{
+			return;
+		}
+		
+		cur.moveToFirst();
+		int id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
+		cur.close();
+		
+		Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
+		this.getContentResolver().delete(uri, null, null);
+	
+	}
+	
+	public boolean titleExists(String val)
+	{
+		File noteFile = new File("/sdcard/Music/" + val + ".mp3");
+
+		boolean noteExists = noteFile.exists();
+		
+		if(noteExists == true)
+		{
+			Toast.makeText(this, "Title already exists, choose another one",
+					 Toast.LENGTH_SHORT).show();
+		}
+		
+		return noteExists;
 	}
 
 

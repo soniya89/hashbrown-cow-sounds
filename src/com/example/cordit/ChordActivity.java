@@ -13,9 +13,11 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -38,7 +40,6 @@ public class ChordActivity extends Activity implements OnClickListener {
 	private TextView titleView;
 	private AlertDialog.Builder alertDeleteNote;
 	private AlertDialog.Builder alertDeleteSong;
-	private AlertDialog.Builder alertSaveNote;
 
 	@Override
 	public void onCreate(Bundle data) {
@@ -49,13 +50,15 @@ public class ChordActivity extends Activity implements OnClickListener {
 		
 		Bundle bundle = getIntent().getExtras();
 		songTitle = bundle.getString("song_title");
-		
+	
 		titleView = (TextView)findViewById(R.id.song_title_note);
 		titleView.setText(songTitle);
 		
 		chordTextView = (EditText)findViewById(R.id.chord_text);
 		chordTextView.setBackgroundColor(Color.WHITE);
 		chordTextView.setHint("Note about the song...");
+		
+		loadNote();
 		
 		deleteSongButton = (Button)findViewById(R.id.delete_song_button);
 		deleteNoteButton = (Button)findViewById(R.id.delete_note_button);
@@ -70,10 +73,7 @@ public class ChordActivity extends Activity implements OnClickListener {
 		
 		alertDeleteSong = new AlertDialog.Builder(this);
 		alertDeleteSong.setTitle("Delete song?");
-		
-		alertSaveNote = new AlertDialog.Builder(this);
-		alertSaveNote.setTitle("Save note?");
-
+	
 		alertDeleteNote
 				.setMessage("Do you want to delete this note permanently?");
 
@@ -124,31 +124,6 @@ public class ChordActivity extends Activity implements OnClickListener {
 					}
 				});
 		
-		alertSaveNote
-		.setMessage("Do you want to save your note?");
-		
-		alertSaveNote.setPositiveButton("Yes",
-				new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-
-						saveNote();
-					
-					}
-				});
-		alertSaveNote.setNegativeButton("No",
-				new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
-
-						
-
-					}
-				});
-		
 }
 
 	@Override
@@ -168,40 +143,49 @@ public class ChordActivity extends Activity implements OnClickListener {
 			break;
 		case R.id.save_button:
 
+			saveNote();
+			/*
 			alertSaveNote.show();
 		
 			Toast.makeText(this, "Note saved!",
 					 Toast.LENGTH_SHORT).show();
+					 */
 			
 			break;
 		}
 		
 	}
 	
-	public void loadNote() throws IOException
+	public void loadNote()
 	{
-		File dir = Environment.getExternalStorageDirectory();
 		
-		File noteFile = new File(dir,
-				"/cordit/" + songTitle + ".txt");
+		File noteFile = new File("/sdcard/cordit/" + songTitle + ".txt");
 		
 		boolean noteExists = noteFile.exists();
 		
 		if(noteExists == true)
 		{
-			FileInputStream in = new FileInputStream(noteFile);
-			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-			
-			String dataRow = "";
-			String buffer = "";
-			
-			while((dataRow = reader.readLine()) != null)
-			{
-				buffer = buffer + dataRow + "\n";
+			FileInputStream in;
+			try {
+				in = new FileInputStream(noteFile);
+				BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+				
+				String dataRow = "";
+				String buffer = "";
+				
+				while((dataRow = reader.readLine()) != null)
+				{
+					buffer = buffer + dataRow + "\n";
+				}
+				
+				chordTextView.setText(buffer);
+				
+				reader.close();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			
-			chordTextView.setText(buffer);
-			reader.close();
+		
 		}
 
 	}
@@ -210,92 +194,108 @@ public class ChordActivity extends Activity implements OnClickListener {
 		try
 		{
 			File dir = Environment.getExternalStorageDirectory();
+			File file = new File(dir, "/cordit/");
 			
-			File noteFile = new File(dir,
-					"/cordit/" + songTitle + ".txt");
-			noteFile.createNewFile();
+			file.mkdirs();
+			
+			File noteFile = new File(file, songTitle + ".txt");
+			
+			
 			FileOutputStream out = new FileOutputStream(noteFile);
 			OutputStreamWriter writer = new OutputStreamWriter(out);
 			
 			writer.append(chordTextView.getText());
 			writer.close();
 			out.close();
+			
+			Toast.makeText(this, songTitle + " saved!!",
+					 Toast.LENGTH_SHORT).show();
 		}
 		catch(Exception e)
 		{
+			Toast.makeText(this, "file save unsuccessful",
+					 Toast.LENGTH_SHORT).show();
 			
 		}
 	}
 	
 	public void deleteNote()
 	{
+		//check if there is a note
+		
 		//delete note from sd card
 		File dir = Environment.getExternalStorageDirectory();
+		File file = new File(dir, "/cordit/" + songTitle + ".txt");
 		
-		File file = new File(dir,
-				"/cordit/" + songTitle + ".txt");
+		if(file.exists())
+		{
 		
 		boolean deleted = file.delete();
+		
+		chordTextView.setText("");
 		if(deleted == true)
 		{
-			/*
-			Toast.makeText(this, songTitle + " deleted!",
-					 Toast.LENGTH_SHORT).show();*/
+			
+			Toast.makeText(this, songTitle + " note deleted!",
+					 Toast.LENGTH_SHORT).show();
 		}
 		else
 		{
-			/*Toast.makeText(this, "delete unsuccessful",
-					 Toast.LENGTH_SHORT).show();*/
+			Toast.makeText(this, "delete note unsuccessful",
+					 Toast.LENGTH_SHORT).show();
+		}
 		}
 	}
 	
 	public void deleteSong()
 	{
-		//delete note from sd card
-		File dir = Environment.getExternalStorageDirectory();
+		deleteNote();
+		
+File dir = Environment.getExternalStorageDirectory();
 		
 		File file = new File(dir,
 				"/Music/" + songTitle + ".mp3");
 		
-		boolean deleted = file.delete();
+		String[] retCol = {MediaStore.Audio.Media._ID};
+		Cursor cur = this.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, retCol, 
+				MediaStore.MediaColumns.DATA + "='" + file + "'", null, null);
 		
-		DeleteRecursive(file);
+		if(cur.getCount() == 0)
+		{
+			return;
+		}
+		
+		cur.moveToFirst();
+		int id = cur.getInt(cur.getColumnIndex(MediaStore.MediaColumns._ID));
+		cur.close();
+		
+		Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
+		this.getContentResolver().delete(uri, null, null);
+		
+		/*
 		if(deleted == true)
 		{
 			
-			Toast.makeText(this, songTitle + " deleted!",
+			Toast.makeText(this, songTitle + " song deleted!",
 					 Toast.LENGTH_SHORT).show();
+
+			
+			File to = new File(dir, "/Music/" + songTitle + ".mp3");
+			Uri uri = MediaStore.Audio.Media.getContentUriForPath(to.toString());
+			//sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://"+ Environment.getExternalStorageDirectory())));
+			getContentResolver().delete(uri, null, null);
 		}
 		else
 		{
-			Toast.makeText(this, "delete unsuccessful",
+			Toast.makeText(this, "delete song unsuccessful",
 					 Toast.LENGTH_SHORT).show();
 		}
+		*/
 		
-		Intent intent = new Intent(this, ChordActivity.class);
-		intent.putExtra("song_title", songTitle);
+		Intent intent = new Intent(this, MainActivity.class);
+		//intent.putExtra("song_title", songTitle);
 		this.startActivity(intent);
 		
 	}
-	
-	public static void DeleteRecursive(File fileOrDirectory)
-    {
-        if (fileOrDirectory.isDirectory()) 
-        {
-            for (File child : fileOrDirectory.listFiles())
-            {
-                DeleteRecursive(child);
-            }
-        }
 
-        fileOrDirectory.delete();
-    }
-	
-	@Override
-    public void onBackPressed()
-    {
-        super.onBackPressed();
-        
-        //check if there is text
-    }
 }

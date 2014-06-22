@@ -103,8 +103,6 @@ public class MainActivity extends Activity implements OnClickListener,
 
 		setContentView(R.layout.activity_main);
 		
-		Toast.makeText(this, "oncreate",
-				 Toast.LENGTH_SHORT).show();
 		/*
 		Bundle bundle = getIntent().getExtras();
 		
@@ -303,6 +301,8 @@ public class MainActivity extends Activity implements OnClickListener,
 			} while (musicCursor.moveToNext());
 
 		}
+		
+		musicCursor.close();
 
 	}
 

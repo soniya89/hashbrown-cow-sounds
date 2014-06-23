@@ -9,7 +9,7 @@
     android:id="@+id/song_title"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:textColor="#FFFF00"
+    android:textColor="#7DF9FF"
     android:textSize="20sp"
     android:layout_alignParentLeft="true"
     android:layout_alignParentTop="true" />

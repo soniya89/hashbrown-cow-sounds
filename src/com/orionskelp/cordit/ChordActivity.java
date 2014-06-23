@@ -1,20 +1,17 @@
-package com.example.cordit;
+package com.orionskelp.cordit;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
+import com.orionskelp.cordit.R;
+
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.content.ContentResolver;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -23,9 +20,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -58,8 +52,9 @@ public class ChordActivity extends Activity implements OnClickListener {
 		titleView.setText(songTitle);
 
 		chordTextView = (EditText) findViewById(R.id.chord_text);
-		chordTextView.setBackgroundColor(Color.WHITE);
+		chordTextView.setBackgroundColor(Color.GRAY);
 		chordTextView.setHint("Note about the song...");
+		chordTextView.setHintTextColor(Color.WHITE);
 
 		loadNote();
 
@@ -142,11 +137,6 @@ public class ChordActivity extends Activity implements OnClickListener {
 		case R.id.save_button:
 
 			saveNote();
-			/*
-			 * alertSaveNote.show();
-			 * 
-			 * Toast.makeText(this, "Note saved!", Toast.LENGTH_SHORT).show();
-			 */
 
 			break;
 		}
@@ -155,7 +145,8 @@ public class ChordActivity extends Activity implements OnClickListener {
 
 	public void loadNote() {
 
-		File noteFile = new File("/sdcard/cordit/" + songTitle + ".txt");
+		File dir = Environment.getExternalStorageDirectory();
+		File noteFile = new File(dir, "/cordit/" + songTitle + ".txt");
 
 		boolean noteExists = noteFile.exists();
 
@@ -204,7 +195,7 @@ public class ChordActivity extends Activity implements OnClickListener {
 			Toast.makeText(this, songTitle + " saved!!", Toast.LENGTH_SHORT)
 					.show();
 		} catch (Exception e) {
-			Toast.makeText(this, "file save unsuccessful", Toast.LENGTH_SHORT)
+			Toast.makeText(this, "File save unsuccessful", Toast.LENGTH_SHORT)
 					.show();
 
 		}
@@ -228,7 +219,7 @@ public class ChordActivity extends Activity implements OnClickListener {
 						Toast.LENGTH_SHORT).show();
 				
 			} else {
-				Toast.makeText(this, "delete note unsuccessful",
+				Toast.makeText(this, "Delete note unsuccessful",
 						Toast.LENGTH_SHORT).show();
 				
 			}
@@ -237,7 +228,7 @@ public class ChordActivity extends Activity implements OnClickListener {
 		{
 			if(fromDeleteSong == false)
 			{
-			Toast.makeText(this, "no note to delete",
+			Toast.makeText(this, "No note to delete",
 					Toast.LENGTH_SHORT).show();
 			}
 			
@@ -267,22 +258,6 @@ public class ChordActivity extends Activity implements OnClickListener {
 		Uri uri = ContentUris.withAppendedId(
 				MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
 		this.getContentResolver().delete(uri, null, null);
-
-		/*
-		 * if(deleted == true) {
-		 * 
-		 * Toast.makeText(this, songTitle + " song deleted!",
-		 * Toast.LENGTH_SHORT).show();
-		 * 
-		 * 
-		 * File to = new File(dir, "/Music/" + songTitle + ".mp3"); Uri uri =
-		 * MediaStore.Audio.Media.getContentUriForPath(to.toString());
-		 * //sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED,
-		 * Uri.parse("file://"+ Environment.getExternalStorageDirectory())));
-		 * getContentResolver().delete(uri, null, null); } else {
-		 * Toast.makeText(this, "delete song unsuccessful",
-		 * Toast.LENGTH_SHORT).show(); }
-		 */
 
 		file.delete();
 		

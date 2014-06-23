@@ -1,20 +1,19 @@
-package com.example.cordit;
+package com.orionskelp.cordit;
 
 import java.util.ArrayList;
 
-import com.example.cordit.R;
-import com.example.cordit.Song;
+import com.orionskelp.cordit.R;
+import com.orionskelp.cordit.Song;
+import com.orionskelp.cordit.MainActivity;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -76,11 +75,14 @@ public class SongAdapter extends BaseAdapter implements OnClickListener{
 	@Override
 	public void onClick(View v) {
 
+		if(MainActivity.isMediaPlayerDisabled() == false)
+		{
 		Intent intent = new Intent(context, ChordActivity.class);
 
 		int songPos = Integer.parseInt(v.getTag().toString());
 		intent.putExtra("song_title", songs.get(songPos).getTitle());
 		context.startActivity(intent);
+		}
 		
 	}
 	

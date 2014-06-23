@@ -1,4 +1,4 @@
-package com.example.cordit;
+package com.orionskelp.cordit;
 
 import java.util.ArrayList;
 
@@ -14,9 +14,8 @@ import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import java.util.Random;
-
-import com.example.cordit.MainActivity;
+import com.orionskelp.cordit.R;
+import com.orionskelp.cordit.MainActivity;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -36,7 +35,6 @@ public class MusicService extends Service implements
 	private String songTitle = "";
 	
 	private static final int NOTIFY_ID = 1;
-	private Random rand;
 
 
 	@Override
@@ -45,7 +43,6 @@ public class MusicService extends Service implements
 		player = new MediaPlayer();
 		songPos = 0;
 		initMusicPlayer();
-		rand = new Random();
 	
 	}
 
@@ -92,6 +89,8 @@ public class MusicService extends Service implements
 	public void playSong() {
 		player.reset();
 
+		if(songs.size()!=0)
+		{
 		Song playSong = songs.get(songPos);
 
 		songTitle = playSong.getTitle();
@@ -109,10 +108,12 @@ public class MusicService extends Service implements
 
 		} catch (Exception e) {
 			Log.e("MUSIC SERVICE", "Error setting data source", e);
+			System.exit(0);
 		}
 
 		// call async so that it doesn't block
 		player.prepareAsync();
+		}
 	}
 
 	@Override

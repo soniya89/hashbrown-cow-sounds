@@ -4,12 +4,8 @@
     <string name="app_name">cordIt</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <!--  
-    <string-array name = "dropdown">
-        <item
-            >Show all music</item>
-        <item
-            >Show my recordings</item>
-    </string-array>-->
+    <string name="save_note">Save Note</string>
+  	<string name="delete_note">Delete Note</string>
+  	<string name="delete_song">Delete Song</string>
 
 </resources>

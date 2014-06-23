@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.cordit"
+    package="com.orionskelp.cordit"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -18,7 +18,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.example.cordit.MainActivity"
+            android:name="com.orionskelp.cordit.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" >
@@ -29,13 +29,13 @@
             </intent-filter>
         </activity>
         <activity 
-            android:name="com.example.cordit.ChordActivity"
+            android:name="com.orionskelp.cordit.ChordActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" >
             
         </activity>
-    	<service android:name="com.example.cordit.MusicService"/>
+    	<service android:name="com.orionskelp.cordit.MusicService"/>
     </application>
 
 </manifest>

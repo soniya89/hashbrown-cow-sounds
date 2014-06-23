@@ -1,13 +1,10 @@
-package com.example.cordit;
+package com.orionskelp.cordit;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-import android.app.ActionBar;
-import android.app.ActionBar.OnNavigationListener;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
@@ -21,22 +18,18 @@ import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.media.AudioManager;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -46,12 +39,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
-import com.example.cordit.MusicService.MusicBinder;
-import com.example.cordit.RecMicToMp3;
+import com.orionskelp.cordit.R;
+import com.orionskelp.cordit.RecMicToMp3;
+import com.orionskelp.cordit.MusicService.MusicBinder;
 
 public class MainActivity extends Activity implements OnClickListener,
 		OnSeekBarChangeListener{
-	private static final String LOG_TAG = "AudioRecordTest";
 
 	// recording
 	private static String mFileName = null;
@@ -75,9 +68,8 @@ public class MainActivity extends Activity implements OnClickListener,
 	private boolean musicBound = false;
 	private boolean paused = false;
 	private boolean playbackPaused = false;
-	private boolean disableMediaPlayer = false;
+	private static boolean disableMediaPlayer = false;
 	private boolean mStartRecording = true;
-	private boolean myMusicSelected = false;
 
 	// media player
 	private ImageButton btnPlay;
@@ -103,18 +95,7 @@ public class MainActivity extends Activity implements OnClickListener,
 		super.onCreate(data);
 
 		setContentView(R.layout.activity_main);
-		
-		/*
-		Bundle bundle = getIntent().getExtras();
-		
-		if(bundle.isEmpty()==false)
-		{
-		String deletedSongTitle = bundle.getString("song_title");
-		
-		Toast.makeText(this, deletedSongTitle,
-				 Toast.LENGTH_SHORT).show();
-		}
-	*/
+
 		// set up record button
 		mRecordButton = (Button) findViewById(R.id.record_button);
 		mRecordButton.setText("RECORD");
@@ -301,10 +282,11 @@ public class MainActivity extends Activity implements OnClickListener,
 				}
 			} while (musicCursor.moveToNext());
 
+			musicCursor.close();
+
 		}
 		
-		musicCursor.close();
-
+		
 	}
 
 	@Override
@@ -439,7 +421,7 @@ public class MainActivity extends Activity implements OnClickListener,
 						
 						disableMediaPlayer = false;
 						
-						updateProgressBar();
+						//updateProgressBar();
 
 					}
 				});
@@ -525,7 +507,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			{
 			if (musicServ != null) {
 				
-				 if(startedPlayingOnce == false)
+				 if((startedPlayingOnce == false)&&(!songList.isEmpty()))
 			        {
 			        	String songTitle = songList.get(musicServ.getSongIndex()).getTitle();
 				        theTitle.setText(songTitle);
@@ -538,6 +520,12 @@ public class MainActivity extends Activity implements OnClickListener,
 						startedPlayingOnce = true;
 						btnPlay.setImageResource(R.drawable.btn_pause);
 			        }
+				 else if((startedPlayingOnce == false)&&(songList.isEmpty()))
+				 {
+					 Toast.makeText(this, "No songs to play!",
+							 Toast.LENGTH_SHORT).show();
+					 break;
+				 }
 				currentPosition = getCurrentPosition();
 				if (currentPosition + seekForwardTime <= getDuration()) {
 					musicServ.seek(currentPosition + seekForwardTime);
@@ -558,7 +546,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			{
 			if (musicServ != null) {
 			
-		        if(startedPlayingOnce == false)
+		        if((startedPlayingOnce == false)&& (!songList.isEmpty()))
 		        {
 		        	String songTitle = songList.get(musicServ.getSongIndex()).getTitle();
 			        theTitle.setText(songTitle);
@@ -570,6 +558,12 @@ public class MainActivity extends Activity implements OnClickListener,
 					updateProgressBar();
 					startedPlayingOnce = true;
 					btnPlay.setImageResource(R.drawable.btn_pause);
+		        }
+		        else if((startedPlayingOnce == false)&&(songList.isEmpty()))
+		        {
+		        	Toast.makeText(this, "No songs to play!",
+							 Toast.LENGTH_SHORT).show();
+		        	break;
 		        }
 				currentPosition = getCurrentPosition();
 				if (currentPosition - seekBackwardTime >= 0) {
@@ -588,10 +582,15 @@ public class MainActivity extends Activity implements OnClickListener,
 			break;
 
 		case R.id.btnNext:
-			if(disableMediaPlayer == false)
+			if((disableMediaPlayer == false)&&(!songList.isEmpty()))
 			{
 			playNext();
 				
+			}
+			else if((disableMediaPlayer == false)&&(songList.isEmpty()))
+			{
+				Toast.makeText(this, "No songs to play!",
+						 Toast.LENGTH_SHORT).show();
 			}
 			else
 			{
@@ -601,11 +600,16 @@ public class MainActivity extends Activity implements OnClickListener,
 			break;
 
 		case R.id.btnPrevious:
-			if(disableMediaPlayer == false)
+			if((disableMediaPlayer == false)&&(!songList.isEmpty()))
 			{
 				
 			
 			playPrev();
+			}
+			else if((disableMediaPlayer == false)&&(songList.isEmpty()))
+			{
+				Toast.makeText(this, "No songs to play!",
+						 Toast.LENGTH_SHORT).show();
 			}
 			else
 			{
@@ -627,7 +631,14 @@ public class MainActivity extends Activity implements OnClickListener,
 			} else// if the music is not playing
 			{
 				if (musicServ != null && musicBound) {
-					if(startedPlayingOnce == false)
+					if((startedPlayingOnce == false)&&(songList.isEmpty()))
+					{
+						Toast.makeText(this, "No songs to play!",
+								 Toast.LENGTH_SHORT).show();
+						break;
+			
+					}
+					else if((startedPlayingOnce == false)&&(!songList.isEmpty()))
 					{
 						startedPlayingOnce = true;
 						musicServ.setSong(0);
@@ -647,7 +658,6 @@ public class MainActivity extends Activity implements OnClickListener,
 						updateProgressBar();
 						
 						playbackPaused = false;
-			
 					}
 					else
 					{
@@ -740,7 +750,8 @@ public class MainActivity extends Activity implements OnClickListener,
 	@Override
 	public void onProgressChanged(SeekBar seekBar, int progress,
 			boolean fromUser) {
-		// TODO Auto-generated method stub
+		
+		btnPlay.setImageResource(R.drawable.btn_pause);
 
 	}
 
@@ -813,8 +824,11 @@ public class MainActivity extends Activity implements OnClickListener,
 				
 				if(progress == 0)
 				{
+					if(musicServ.getSongIndex()<songList.size())
+					{
 					String songTitle = songList.get(musicServ.getSongIndex()).getTitle();
 			        theTitle.setText(songTitle);
+					}
 				}
 				
 
@@ -844,8 +858,11 @@ public class MainActivity extends Activity implements OnClickListener,
 				
 				if(progress == 0)
 				{
+					if(musicServ.getSongIndex()<songList.size())
+					{
 					String songTitle = songList.get(musicServ.getSongIndex()).getTitle();
 			        theTitle.setText(songTitle);
+					}
 				}
 
 				// Running this thread after 100 milliseconds
@@ -952,12 +969,15 @@ public class MainActivity extends Activity implements OnClickListener,
 		
 		Uri uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id);
 		this.getContentResolver().delete(uri, null, null);
+		
+		file.delete();
 	
 	}
 	
 	public boolean titleExists(String val)
 	{
-		File noteFile = new File("/sdcard/Music/" + val + ".mp3");
+		File dir = Environment.getExternalStorageDirectory();
+		File noteFile = new File(dir, "/Music/" + val + ".mp3");
 
 		boolean noteExists = noteFile.exists();
 		
@@ -968,6 +988,11 @@ public class MainActivity extends Activity implements OnClickListener,
 		}
 		
 		return noteExists;
+	}
+	
+	public static boolean isMediaPlayerDisabled()
+	{
+		return disableMediaPlayer;
 	}
 
 

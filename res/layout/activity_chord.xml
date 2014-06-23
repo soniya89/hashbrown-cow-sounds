@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#080909"
     android:orientation="vertical" >
     
     <TextView 
@@ -18,8 +19,7 @@
         android:orientation="horizontal"
         style="?android:attr/buttonBarStyle">
     <Button
-        android:background="@drawable/roundedbutton"
-        style="?android:attr/buttonBarButtonStyle"
+		style="@style/btnStyleBlackpearl"
         android:id="@+id/save_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -27,8 +27,7 @@
         android:text="@string/save_note"
         android:textColor="#7DF9FF"/>
     <Button
-        android:background="@drawable/roundedbutton"
-        style="?android:attr/buttonBarButtonStyle"
+        style="@style/btnStyleBlackpearl"
         android:id="@+id/delete_note_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -36,8 +35,7 @@
         android:text="@string/delete_note"
         android:textColor="#7DF9FF"/>
     <Button
-        android:background="@drawable/roundedbutton"
-        style="?android:attr/buttonBarButtonStyle"
+        style="@style/btnStyleBlackpearl"
         android:id="@+id/delete_song_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -57,6 +55,7 @@
         android:singleLine="false"
         android:inputType="textMultiLine"
         android:gravity="top|left"
+        android:background="#050e13"
         android:textColor="#FFFFFF"/>
 	    
 </LinearLayout>

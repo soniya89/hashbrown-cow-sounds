@@ -100,7 +100,6 @@ public class MainActivity extends Activity implements OnClickListener,
 		mRecordButton = (Button) findViewById(R.id.record_button);
 		mRecordButton.setText("RECORD");
 		mRecordButton.setOnClickListener(this);
-		getWindow().getDecorView().setBackgroundColor(Color.DKGRAY);
 
 		// set up song list
 		songView = (ListView) findViewById(R.id.song_list);

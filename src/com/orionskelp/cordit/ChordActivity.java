@@ -55,7 +55,7 @@ public class ChordActivity extends Activity implements OnClickListener {
 		titleView.setText(songTitle);
 
 		chordTextView = (EditText) findViewById(R.id.chord_text);
-		chordTextView.setBackgroundColor(Color.GRAY);
+		//chordTextView.setBackgroundColor(Color.GRAY);
 		chordTextView.setHint("Note about the song...");
 		chordTextView.setHintTextColor(Color.WHITE);
 

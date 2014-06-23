@@ -4,16 +4,16 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
+    android:background="#080909"
     tools:context=".MainActivity" >
 
     <Button
-        android:background="@drawable/roundedbutton"
+        style="@style/btnStyleBlackpearl"
         android:id="@+id/record_button"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:textSize="40sp"
-        android:textColor="#7DF9FF"
         android:textStyle="bold"
         android:gravity="center" />
         

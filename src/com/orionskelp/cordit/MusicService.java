@@ -12,7 +12,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.orionskelp.cordit.R;
 import com.orionskelp.cordit.MainActivity;
@@ -107,7 +106,6 @@ public class MusicService extends Service implements
 			player.setDataSource(getApplicationContext(), trackUri);
 
 		} catch (Exception e) {
-			Log.e("MUSIC SERVICE", "Error setting data source", e);
 			System.exit(0);
 		}
 

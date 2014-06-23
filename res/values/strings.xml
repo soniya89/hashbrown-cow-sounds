@@ -2,6 +2,7 @@
 <resources>
 
     <string name="app_name">cordIt</string>
+    <string name="app_name_abrv">ordIt</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="save_note">Save Note</string>
